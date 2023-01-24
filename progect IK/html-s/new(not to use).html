@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+   <body>
+   
+      <h3>Test I. Kizikin</h3>
+      <hr/>
+      
+      {%- for category, message in get_flashed_messages(with_categories = true) %}
+         <div class = "alert alert-danger">
+            {{ message }}
+         </div>
+      {%- endfor %}
+      
+      <form action = "{{ request.path }}" method = "POST">
+
+         <!-- <label for = "zzz.id">id</label><br>
+         <input type = "integer" name = "zzz.id" placeholder = "Вставте свой id" /><br> -->
+
+         <!-- <label for = "zzz.email">email</label><br>
+         <input type = "text" name = "zzz.email" placeholder = "Введите свой email" /><br> -->
+
+         <label for = "zzz.username">Имя</label><br>
+         <textarea name = "zzz.username" placeholder = "Введите ваше имя"></textarea><br>
+
+         <input type = "submit" value = "Отправить" />
+      </form>
+      
+   </body>
+</html>

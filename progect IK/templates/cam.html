@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <title>Camera</title>
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="/static/assets/css/styles.css">
+
+</head>
+<h1>{{ result }}</h1>
+<body>
+
+  <input type="button" value="Посмотреть результат" onClick="window.location.reload(true)">
+  <form id="form"
+    class="form-signin card col-xl-8 col-10 mx-auto my-3 d-flex flex-direction-column align-items-center justify-content-center"
+    method="POST" enctype="multipart/form-data">
+    <div class="container-fluid mx-auto p-0 w-50 d-flex flex-direction-column align-items-center justify-content-center">
+      <img class="mx-auto d-inline-block my-3 img-fluid" id="dp" />
+    </div> 
+
+  </form>
+
+
+
+<h3>Давайте посмотрим на вас</h3>
+
+<div class="container">
+
+  <div class="app">
+
+    <a href="#" id="start-camera" class="visible">Загружаем...</a>
+    <video id="camera-stream"></video>
+    <img id="snap">
+
+    <p id="error-message"></p>
+
+    <div class="controls">
+      <a href="#" id="delete-photo"  title="Удалить фото" class="disabled"><i class="material-icons">delete</i></a>
+      <a href="#" id="take-photo" title="Сделать фото"><i class="material-icons">camera_alt</i></a>
+      <!-- <a href="#" id="download-photo" download="selfie.png" title="Скачать фото" class="disabled"><i class="material-icons">file_download</i></a>   -->
+    </div>
+
+    <canvas id="canvas"></canvas>
+
+  </div>
+
+</div>
+
+
+
+<script src="/static/assets/js/script.js">
+</script>
+
+
+
+
+</body>
+
+</html>
