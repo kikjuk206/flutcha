@@ -1,0 +1,21 @@
+.container{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100vh;
+} 
+
+form{
+    justify-content: center;
+    display: flex;
+    flex-direction: column;
+}
+
+body{
+    background-image: url(1026.jpg);
+    background-color: red;
+    /* background-position: center center; 
+    background-repeat: no-repeat;
+    background-size: cover;
+     */
+}
