@@ -112,6 +112,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Pause video playback of stream.
         video.pause();
+                // location.reload(); 
+        // return false;
 
     });
 

@@ -8,7 +8,7 @@ import qrcode                                        #pip install qrcode  and  p
 
 
 
-#Сотрите Ivan Kizikin из таблицы Excel и добавьте его снова через http://127.0.0.1:5000/        pls :)
+
 
 app = Flask(__name__)
 cors = CORS(app, resources={r"/uploader": {"origins": "*"}})
@@ -35,8 +35,11 @@ def new():
         df = pd.read_excel('names.xlsx')
         print(type(name))
 
-        df = df.append(pd.Series (new, index=df.columns [: len (new)]), ignore_index= True)
 
+        new_record = pd.Series (new, index=df.columns [: len (new)])
+        new_record_df = new_record.to_frame().T
+        df = pd.concat([df, new_record_df], ignore_index=True)
+        print(df)
 
         df.to_excel('names.xlsx', index=False)
         
@@ -67,7 +70,8 @@ def cam():
         ep_time = time.time()
         time_now = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(ep_time))
 
-        new = [data, time_now]
+        # new = [data, time_now]
+        new = {'ФИО': [data], 'time': [time_now]}
 
         df = pd.read_excel('names.xlsx')
         print(df['ФИО'])
@@ -75,7 +79,7 @@ def cam():
         if len(df[df['ФИО'] == data]) != 0:
             print('#######################################################################################                 YYYYYYYYYYYYYYYYY')
             df1 = pd.read_excel('test.xlsx')
-            df1 = df1.append(pd.Series (new, index=df1.columns [: len (new)]), ignore_index= True)
+            df1 = pd.concat([df, pd.DataFrame (new, index=df.columns [: len (new)])], ignore_index = True)
             df1.to_excel('test.xlsx', index=False)
             result = 'Все отлично, проходите'
             return render_template('cam.html', result=result)
