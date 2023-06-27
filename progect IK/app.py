@@ -1,13 +1,14 @@
-from flask import Flask, render_template, request, redirect, url_for    #pip install Flask
-import cv2                                                              #pip install opencv-python
-from flask_cors import CORS                                             #pip install Flask-Cors
-import pandas as pd                                                     #pip install pandas  and  pip install openpyxl
+from flask import Flask, render_template, request, redirect, url_for, send_file, g    #pip install Flask
+import cv2                                                                         #pip install opencv-python
+from flask_cors import CORS                                                        #pip install Flask-Cors
+import pandas as pd                                                                #pip install pandas  and  pip install openpyxl
 import time
 from datetime import datetime
-import qrcode                                                           #pip install qrcode  and  pip install pillow
+import qrcode                                                                      #pip install qrcode  and  pip install pillow
 from io import BytesIO
 import base64
 import sqlite3
+import xlsxwriter                                                                   #pip install xlsxwriter  
 
 
 
@@ -19,10 +20,33 @@ cors = CORS(app, resources={r"/uploader": {"origins": "*"}})
 app.config['CORS_HEADERS'] = 'Content-Type'
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 
+# Подключение к базе данных SQLite
 conn = sqlite3.connect('database.db')
 cursor = conn.cursor()
+
+# Создание таблицы users, если она не существует
 cursor.execute("CREATE TABLE IF NOT EXISTS users (Login TEXT, Name TEXT, Surname TEXT, Password TEXT)")
 cursor.execute("CREATE TABLE IF NOT EXISTS test (ФИО TEXT, Время TEXT)")
+
+
+# Проверка, существует ли пользователь "admin" в таблице users
+cursor.execute("SELECT * FROM users WHERE Login=?", ('admin',))
+user = cursor.fetchone()
+if user is None:
+    # Добавление пользователя "admin" в таблицу users
+    cursor.execute("INSERT INTO users (Login, Name, Surname, Password) VALUES (?, ?, ?, ?)", ('admin', 'admin', 'admin', 'qwerty'))
+    conn.commit()
+
+
+
+DATABASE = 'database.db'
+
+def get_db():
+    db = getattr(g, '_database', None)
+    if db is None:
+        db = g._database = sqlite3.connect(DATABASE)
+    return db
+
 
 result = ''
 error = ''
@@ -67,6 +91,7 @@ def success():
 
     login = request.form.get('login')
     password = request.form.get('password')
+    print(login, password)
 
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
@@ -74,15 +99,22 @@ def success():
     cursor.execute("SELECT * FROM users WHERE Login = ? AND Password = ?", (login, password))
     user = cursor.fetchone()
 
-    if user is not None:
-            if user[0] == login and user[3] == password:
-                conn.close()
-                print('Ok!')
-                return redirect(url_for('profile', login=login))
-            else:
-                print('error')
-                error = 'Неверное имя пользователя или пароль'
-                return render_template('success.html', error=error)
+    if login == 'admin' and password == 'qwerty':
+        print('admin is coming!')
+        return render_template('admin.html', error=error)
+    
+    else:
+        if user is not None:
+                if user[0] == login and user[3] == password:
+                    conn.close()
+                    print('Ok!')
+                    return redirect(url_for('profile', login=login))
+                
+                else:
+                    print('error')
+                    error = 'Неверное имя пользователя или пароль'
+                    return render_template('success.html', error=error)
+    
             
     return render_template( 'success.html', error=error)
 
@@ -99,6 +131,13 @@ def profile(login):
     cursor.execute("SELECT * FROM users WHERE Login=?", (login,))
     user = cursor.fetchone()
 
+
+
+
+
+        
+
+
     if user is not None:
             if user[0] == login:
                 print("Ok!")
@@ -114,18 +153,58 @@ def profile(login):
                 buffered = BytesIO()
                 qr_img.save(buffered, format="PNG")
                 qr_img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
-        
+            
                 user_data = {'name': name, 'qr_code': qr_img_str, 'login': login}
                 return render_template('user.html', user_data=user_data)
-    
+            
+            elif user[0] == 'admin':
+                 render_template('admin.html')
             else:
                 error = 'Пользователь не найден'
                 return render_template('success.html', error=error)
 
     
+@app.route('/admin', methods = ['GET', 'POST'])
+def admin(): 
+    print('admin is coming!')
+    return render_template('admin.html')
 
-    
 
+@app.route('/admin/download_db_test', methods = ['GET', 'POST'])
+def admin_download_test():
+     
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM test")
+    test_results = cursor.fetchall()
+
+    test_df = pd.DataFrame(test_results, columns=['ФИО', 'Время'])
+
+    # Создаем файл Excel и записываем данные в него
+    writer = pd.ExcelWriter('output_test.xlsx', engine='xlsxwriter')
+    test_df.to_excel(writer, sheet_name='Test', index=False)
+    writer.close()
+
+    db_file_path = 'output_test.xlsx' 
+    return send_file(db_file_path, as_attachment=True)
+
+@app.route('/admin/download_db_users', methods = ['GET', 'POST'])
+def admin_download_users():
+     
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM users")
+    users_results = cursor.fetchall()
+
+
+    users_df = pd.DataFrame(users_results, columns=['Login', 'Name', 'Surname', 'Password'])
+
+    writer = pd.ExcelWriter('output_users.xlsx', engine='xlsxwriter')
+    users_df.to_excel(writer, sheet_name='Users', index=False)
+    writer.close()
+
+    db_file_path = 'output_users.xlsx' 
+    return send_file(db_file_path, as_attachment=True)
 
 
 @app.route('/cam', methods = ['GET', 'POST'])
