@@ -95,18 +95,30 @@ document.addEventListener('DOMContentLoaded', function () {
 
         ctx.drawImage(video, 0,0);
 
-
         var data = canvas.toBlob((data) => {
             console.log(data);
             console.log(typeof(data));
-            a = new FormData();
-            a.append("file", data, "image/png")
+            var form_data = new FormData();
+            form_data.append("file", data, "image/png")
             fetch('http://127.0.0.1:5000/cam', {
-                method: 'post',
-                mode: 'no-cors',
-                body: a
+                method: 'POST',
+                body: form_data
+            }).then(() => {
+                location.reload();
             });
         });
+        
+        // var data = canvas.toBlob((data) => {
+        //     console.log(data);
+        //     console.log(typeof(data));
+        //     a = new FormData();
+        //     a.append("file", data, "image/png")
+        //     fetch('http://127.0.0.1:5000/cam', {
+        //         method: 'post',
+        //         mode: 'no-cors',
+        //         body: a
+        //     });
+        // });
 
 
 

@@ -14,10 +14,9 @@
     <link rel="stylesheet" href="/static/assets/css/styles.css">
 
 </head>
-<h1>{{ result }}</h1>
+<h1 class="text-center">{{ result }}</h1>
 <body>
 
-  <input type="button" value="Посмотреть результат" onClick="window.location.reload(true)">
   <form id="form"
     class="form-signin card col-xl-8 col-10 mx-auto my-3 d-flex flex-direction-column align-items-center justify-content-center"
     method="POST" enctype="multipart/form-data">
@@ -28,8 +27,6 @@
   </form>
 
 
-
-<h3>Давайте посмотрим на вас</h3>
 
 <div class="container">
 
@@ -44,7 +41,7 @@
     <div class="controls">
       <a href="#" id="delete-photo"  title="Удалить фото" class="disabled"><i class="material-icons">delete</i></a>
       <a href="#" id="take-photo" title="Сделать фото"><i class="material-icons">camera_alt</i></a>
-      <!-- <a href="#" id="download-photo" download="selfie.png" title="Скачать фото" class="disabled"><i class="material-icons">file_download</i></a>   -->
+      <a href="#" id="download-photo" download="selfie.png" title="Скачать фото" class="disabled"><i class="material-icons">file_download</i></a>  
     </div>
 
     <canvas id="canvas"></canvas>
@@ -64,3 +61,5 @@
 </body>
 
 </html>
+
+
