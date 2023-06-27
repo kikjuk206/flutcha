@@ -13,6 +13,7 @@ import sqlite3
 
 
 
+
 app = Flask(__name__)
 cors = CORS(app, resources={r"/uploader": {"origins": "*"}})
 app.config['CORS_HEADERS'] = 'Content-Type'
