@@ -10,10 +10,7 @@ import base64
 import sqlite3
 import xlsxwriter                                                                   #pip install xlsxwriter  
 
-
-
-
-
+# pip install -r requirements.txt
 
 app = Flask(__name__)
 cors = CORS(app, resources={r"/uploader": {"origins": "*"}})
