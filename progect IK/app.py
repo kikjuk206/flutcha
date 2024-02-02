@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, redirect, url_for, send_file, g    #pip install Flask
+from flask import Flask, render_template, request, redirect, url_for, send_file, flash, session, g    #pip install Flask
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 import cv2                                                                         #pip install opencv-python
 from flask_cors import CORS                                                        #pip install Flask-Cors
 import pandas as pd                                                                #pip install pandas  and  pip install openpyxl
@@ -13,6 +14,7 @@ import xlsxwriter                                                               
 # pip install -r requirements.txt
 
 app = Flask(__name__)
+app.secret_key = '123456789'
 cors = CORS(app, resources={r"/uploader": {"origins": "*"}})
 app.config['CORS_HEADERS'] = 'Content-Type'
 app.config['TEMPLATES_AUTO_RELOAD'] = True
@@ -44,6 +46,30 @@ def get_db():
         db = g._database = sqlite3.connect(DATABASE)
     return db
 
+login_manager = LoginManager(app)
+login_manager.login_view = 'login'
+
+
+class User(UserMixin):
+    def __init__(self, user_id):
+        self.id = user_id
+
+    def get_id(self):
+        return str(self.id)
+    
+    def is_authenticated(self):
+        return True
+
+    def is_active(self):
+        return True
+
+    def is_anonymous(self):
+        return False
+    
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User(user_id)
 
 result = ''
 error = ''
@@ -75,7 +101,7 @@ def register():
         conn.commit()
         conn.close()
 
-
+        flash('Вы успешно зарегистрировались!')
         return render_template('success.html')
     else:
         return render_template('register.html')
@@ -83,84 +109,77 @@ def register():
     
 @app.route('/success', methods=['GET', 'POST'])
 def success():
+    if request.method == 'POST':
+            login = request.form.get('login')
+            password = request.form.get('password')
+            session['login'] = login
+            print('Take ', login, password)
 
-    global error
+            conn = sqlite3.connect('database.db')
+            cursor = conn.cursor()
 
-    login = request.form.get('login')
-    password = request.form.get('password')
-    print(login, password)
+            cursor.execute("SELECT * FROM users WHERE Login=?", (login,))
+            user = cursor.fetchone()
 
-    conn = sqlite3.connect('database.db')
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT * FROM users WHERE Login = ? AND Password = ?", (login, password))
-    user = cursor.fetchone()
-
-    if login == 'admin' and password == 'qwerty':
-        print('admin is coming!')
-        return render_template('admin.html', error=error)
-    
-    else:
-        if user is not None:
-                if user[0] == login and user[3] == password:
-                    conn.close()
-                    print('Ok!')
-                    return redirect(url_for('profile', login=login))
-                
-                else:
-                    print('error')
-                    error = 'Неверное имя пользователя или пароль'
-                    return render_template('success.html', error=error)
-    
+            if login == 'admin' and password == 'qwerty':
+                flash('Вы успешно вошли как администратор!')
+                print('admin is coming!')
+                return render_template('admin.html')
             
-    return render_template( 'success.html', error=error)
+            elif user is not None and user[3] == password:
+                user_object = User(login)
+                flash('Вы успешно вошли!')
+                login_user(user_object)
+                conn.close()
+                return redirect(url_for('dashboard'))
+
+            error = 'Неверное имя пользователя или пароль'
+            conn.close()
+            flash(error)
+            return render_template('success.html', error=error)
+
+    return render_template('success.html')
 
 
-    
-
-@app.route('/profile/<login>')
-def profile(login):
-
+@app.route('/dashboard')
+@login_required
+def dashboard():
+    login = current_user.get_id()
+    print(login)
+    user_data = login
 
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
 
     cursor.execute("SELECT * FROM users WHERE Login=?", (login,))
     user = cursor.fetchone()
+    name = user[1]
 
-    if user is not None:
-            if user[0] == login:
-                print("Ok!")
-                conn.close()
-                user_data = login
-                name = user[1]
+    qr = qrcode.QRCode(version=1, box_size=10, border=4)
+    qr.add_data(f"{user_data} {datetime.now().strftime('%H:%M')}")
+    qr.make(fit=True)
+    qr_img = qr.make_image(fill_color="black", back_color="white")
+    # Преобразование изображения в строку в формате base64
+    buffered = BytesIO()
+    qr_img.save(buffered, format="PNG")
+    qr_img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
+            
+    user_data = {'name': name, 'qr_code': qr_img_str, 'login': login}
 
-                qr = qrcode.QRCode(version=1, box_size=10, border=4)
-                qr.add_data(f"{user_data} {datetime.now().strftime('%H:%M')}")
-                qr.make(fit=True)
-                qr_img = qr.make_image(fill_color="black", back_color="white")
-                # Преобразование изображения в строку в формате base64
-                buffered = BytesIO()
-                qr_img.save(buffered, format="PNG")
-                qr_img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
-            
-                user_data = {'name': name, 'qr_code': qr_img_str, 'login': login}
-                return render_template('user.html', user_data=user_data)
-            
-            elif user[0] == 'admin':
-                 render_template('admin.html')
-            else:
-                error = 'Пользователь не найден'
-                return render_template('success.html', error=error)
+    return render_template('user.html', user_data=user_data, login = current_user.id)
+
+
 
     
 @app.route('/admin', methods = ['GET', 'POST'])
+@login_required
 def admin(): 
     print('admin is coming!')
     return render_template('admin.html')
 
 
 @app.route('/admin/download_db_test', methods = ['GET', 'POST'])
+@login_required
 def admin_download_test():
      
     conn = get_db()
@@ -170,7 +189,6 @@ def admin_download_test():
 
     test_df = pd.DataFrame(test_results, columns=['ФИО', 'Время'])
 
-    # Создаем файл Excel и записываем данные в него
     writer = pd.ExcelWriter('output_test.xlsx', engine='xlsxwriter')
     test_df.to_excel(writer, sheet_name='Test', index=False)
     writer.close()
@@ -179,6 +197,7 @@ def admin_download_test():
     return send_file(db_file_path, as_attachment=True)
 
 @app.route('/admin/download_db_users', methods = ['GET', 'POST'])
+@login_required
 def admin_download_users():
      
     conn = get_db()
@@ -201,16 +220,7 @@ def admin_download_users():
 def cam():
     global result
     if request.method == 'POST':
-        file = request.files.get('file')
-        print(f'Got file: {request.files}')
-
-        file.save('./photo/original.png')
-
-    
-        img = cv2.imread('photo/original.png')
-        detector = cv2.QRCodeDetector()
-        data, bbox, temp = detector.detectAndDecode(img)
-        print(data)
+        data = request.form.get('data')
 
         ep_time = time.time()
         time_now = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(ep_time))
@@ -218,7 +228,7 @@ def cam():
 
 
         login, time_qr = data.split()
-
+        print(login, time_qr)
 
 
         conn = sqlite3.connect('database.db')
@@ -238,12 +248,19 @@ def cam():
                     conn.commit()
 
                     conn.close()
+                    flash(result)
                     result = 'Все отлично, проходите'
-                    return render_template('cam.html', result=result)
+                    server_response = "yes"
+                    # return render_template('cam.html', result=result, response = server_response)
+                    return "yes"
                 else:
                     print('//////////////////////////////////////////////////////////////////////////////////////////               NONONONONONONONONO')
                     result = 'Ошибка... Вас нет в базе данных'
-                    return render_template('cam.html', result=result)
+                    server_response = "no"
+                    print(server_response)
+                    flash(result)
+                    # return render_template('cam.html', result=result, response = server_response)
+                    return "no"
                     
 
 
@@ -254,13 +271,17 @@ def cam():
 
 
 
-
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('success'))
 
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=True)
 
-# камера работает на http://127.0.0.1:5000/cam, нужно заходить по "Адаптер беспроводной локальной сети Беспроводная сеть" IPv4-адрес компа, команда ipconfig в cmd
+# камера работает на http://127.0.0.1:5000/cam, для телефона нужно заходить по "Адаптер беспроводной локальной сети Беспроводная сеть" IPv4-адрес компа, команда ipconfig в cmd
 
 # if __name__ == "__main__":
 #     app.run(debug=True)

@@ -11,7 +11,23 @@
             margin: 0;
             padding: 0;
         }
+        header {
+            background-color: #f0f0f0; 
+            padding: 10px;
+            text-align: right; 
+        }
 
+        #logout-btn {
+            background-color: #4caf50; 
+            color: white; 
+            border: none;
+            padding: 10px 15px; 
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            cursor: pointer;
+        }
         .container {
             margin: 0 auto;
             max-width: 800px;
@@ -39,6 +55,10 @@
     </style>
 </head>
 <body>
+    <header>
+        <button id="logout-btn" onclick="location.href='/logout'">Выход</button>
+    </header>
+    
     <div class="container">
         <h1>Добро пожаловать, {{ user_data['name'] }}!</h1>
         <ul>
