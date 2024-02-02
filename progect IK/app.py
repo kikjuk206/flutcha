@@ -128,13 +128,6 @@ def profile(login):
     cursor.execute("SELECT * FROM users WHERE Login=?", (login,))
     user = cursor.fetchone()
 
-
-
-
-
-        
-
-
     if user is not None:
             if user[0] == login:
                 print("Ok!")
