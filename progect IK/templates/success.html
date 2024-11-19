@@ -40,18 +40,28 @@
                     <h4 class="text-center">Вход пользователя</h4>
                     <form method="POST" action="/success" class="px-4 py-3 justify-content-center border border-primary border-3 rounded">
                         <div class="form-group">
+
                             <label for="name">Логин</label>
                           <input class="form-control" name="login" id="login" placeholder="Логин" required>
+
+                          <!-- <label for="name">Номер школы</label>
+                          <input class="form-control" type="number" name ='sch' id="sch" placeholder="Индекс" required>
+
+                          <label for="name">Индекс школы</label>
+                          <input class="form-control" type="number" name ='idx' id="idx" placeholder="Индекс" required> -->
+
                           <label for="name">Пароль</label>
                           <input class="form-control" type="password" name="password" id="password" placeholder="Пароль" required>
+
                         </div>
                         <div class="form-group">
                         </div>
                         <button type="submit" class="btn btn-primary">Войти</button>
-                        
+
                       </form>
                 </div>
             </div>
+
             <h2 class="text-center">{{error}}</h2>
         </div>
         

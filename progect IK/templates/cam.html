@@ -20,10 +20,19 @@
     height: 100vh;
     margin: 0;
   }
+
+  h1 {
+      text-align: center;
+      background-color: #f2f2f2;
+      margin: 4px -100px;
+    }
 </style>
+
 <body>
+  
 
   <main class="wrapper" style="padding-top:2em">
+    <h1>Камера Школы №{{user_data[0]}}, город {{user_data[1]}}</h1>
 
       
       <div>
@@ -52,7 +61,8 @@
 
 
   </main>
-  <script type="text/javascript" src="https://unpkg.com/@zxing/library@latest"></script>
+  <script type="text/javascript" src="static\megajs.js"></script>
+  <!-- <script type="text/javascript" src="https://unpkg.com/@zxing/library@latest"></script> -->
   <script type="text/javascript">
     // одиночное сканирование
     // function decodeOnce(codeReader, selectedDeviceId) {

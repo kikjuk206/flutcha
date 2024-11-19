@@ -1,67 +1,180 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Административная панель</title>
   <style>
+    /* Основные настройки */
     body {
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
+      background-color: #f3f4f6;
+      color: #333;
     }
+
+    /* Шапка */
     header {
-            background-color: #f0f0f0; 
-            padding: 10px;
-            text-align: right; 
-        }
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(135deg, #6a11cb, #2575fc);
+      color: white;
+      padding: 20px 30px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    h1 {
+      font-size: 24px;
+      margin: 0;
+      font-weight: 500;
+    }
 
     #logout-btn {
-            background-color: #4caf50; 
-            color: white; 
-            border: none;
-            padding: 10px 15px; 
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            cursor: pointer;
-        }    
-
-    h1 {
-      text-align: center;
-      background-color: #f2f2f2;
-      /* padding: 10px; */
-    }
-
-    a {
-      text-decoration: none;
-      display: inline-block;
-      margin-top: 20px;
-    }
-
-    button {
-      background-color: #4CAF50;
+      background-color: #ff5e57;
       color: white;
       border: none;
       padding: 10px 20px;
-      text-align: center;
-      text-decoration: none;
-      display: inline-block;
       font-size: 16px;
-      margin: 4px 2px;
       cursor: pointer;
-      border-radius: 4px;
+      border-radius: 50px;
+      transition: 0.3s ease;
+    }
+    
+    #logout-btn:hover {
+      background-color: #e14b46;
+      transform: scale(1.05);
+    }
+
+    /* Контейнер страницы */
+    .container {
+      display: flex;
+      padding: 20px 30px;
+    }
+
+    /* Боковая панель с кнопками */
+    .sidebar {
+      width: 250px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: #ffffff;
+      padding: 20px;
+      margin-right: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .sidebar button {
+      width: 100%; /* Кнопки занимают всю ширину контейнера */
+      max-width: 200px; /* Ограничение по максимальной ширине */
+      margin: 10px 0;
+      background-color: #6a11cb;
+      color: white;
+      border: none;
+      padding: 15px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+
+    .sidebar button:hover {
+      background-color: #2575fc;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+  
+    #camera-btn {
+      background-color: #45ba85b3; 
+      color: #ffffff; 
+      font-weight: bold; 
+
+    }
+
+    #camera-btn:hover {
+      background-color: #56a12b; 
+      transform: scale(1.05); 
+    }
+
+    /* Таблица */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    th, td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+
+    th {
+      background-color: #2575fc;
+      color: white;
+      font-weight: 600;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f9fafb;
+    }
+
+    tr:hover {
+      background-color: #eaf2ff;
+      transition: background-color 0.2s ease;
     }
   </style>
 </head>
-<header>
-  <button id="logout-btn" onclick="location.href='/logout'">Выход</button>
-  <h1>Административная панель</h1>
-</header>
 <body>
 
-  <a href="/admin/download_db_users"><button>Скачать БД(Пароли)</button></a>
-  <a href="/admin/download_db_test"><button>Скачать БД(Статистика)</button></a>
+<header>
+  <h1>Административная панель Школы №{{user_data[0]}}, город {{user_data[1]}}</h1>
+  <button id="logout-btn" onclick="location.href='/logout'">Выход</button>
+</header>
+
+<div class="container">
+  
+  <!-- Боковая панель с кнопками -->
+  <div class="sidebar">
+    <a href="/cam"><button id="camera-btn">Открыть камеру</button></a> <!-- Уникальный стиль для этой кнопки -->
+    <a href="/admin/download_db_users"><button>Скачать БД (Пароли)</button></a>
+    <a href="/admin/download_db_test"><button>Скачать БД (Статистика)</button></a>
+  </div>
+  
+  <!-- Таблица данных -->
+  <table>
+    <thead>
+      <tr>
+        <th>Login</th>
+        <th>Class</th>
+        <th>Simv</th>
+        <th>Name</th>
+        <th>Surname</th>
+        <th>Password</th>
+      </tr>
+    </thead>    
+    <tbody>
+      {% for row in database_data %}
+      <tr>
+        <td>{{row[0]}}</td>
+        <td>{{row[1]}}</td>
+        <td>{{row[2]}}</td>
+        <td>{{row[3]}}</td>
+        <td>{{row[4]}}</td>
+        <td>{{row[5]}}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+</div>
+
 </body>
 </html>
-
-

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Административная панель</title>
+
+  <style>
+    body {
+      font-family: 'Roboto', Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #58446e, #2575fc); /* Голубо-фиолетовый градиент */
+      color: #fff;
+    }
+
+    header {
+      background-color: rgba(0, 0, 0, 0.7);
+      color: white;
+      text-align: center;
+      padding: 15px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    #logout-btn {
+      position: absolute;
+      right: 20px;
+      top: 15px;
+      background-color: #fff;
+      color: #58446e;
+      border: 2px solid #fff;
+      padding: 10px 15px;
+      text-align: center;
+      font-size: 14px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    #logout-btn:hover {
+      background-color: #58446e;
+      color: #fff;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    .content {
+      display: flex;
+      flex-direction: row;
+      height: calc(100vh - 70px);
+    }
+
+    .container {
+      width: 30%;
+      background-color: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      border-right: 2px solid rgba(255, 255, 255, 0.2);
+      overflow-y: auto;
+      box-shadow: 5px 0 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .container h2 {
+      text-align: left;
+      color: #fff;
+      width: 100%;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+    }
+
+    label {
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    input {
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #fff;
+      border-radius: 5px;
+      font-size: 16px;
+      background-color: rgba(255, 255, 255, 0.2);
+      color: #fff;
+    }
+
+    input::placeholder {
+      color: #ddd;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #2575fc;
+    }
+
+    button {
+      background-color: #2575fc;
+      color: white;
+      padding: 12px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+
+    button:hover {
+      background-color: #1a69d6;
+      transform: scale(1.05);
+    }
+
+    table {
+      width: 70%;
+      margin: 20px;
+      border-collapse: collapse;
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      color: #fff;
+      text-align: left;
+    }
+
+    th, td {
+      padding: 15px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    th {
+      background-color: rgba(0, 0, 0, 0.4);
+      font-size: 18px;
+    }
+
+    tr:nth-child(even) {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    tr:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .table-container {
+      width: 70%;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<header>
+  <button id="logout-btn" onclick="location.href='/logout'">Выход</button>
+  <h1>Административная панель</h1>
+</header>
+<body>
+
+<div class="content">
+  <!-- Левая часть: Панель регистрации -->
+  <div class="container">
+    <h2>Регистрация школы</h2>
+    <form method="POST" action="/admin-sch">
+      <label for="num">Номер школы</label>
+      <input type="number" name="num" id="num" placeholder="Номер школы" required>
+
+      <label for="sity">Город</label>
+      <input name="sity" id="sity" placeholder="Город" required>
+
+      <label for="inx">Индекс школы</label>
+      <input type="number" name="inx" id="inx" placeholder="Индекс" required>
+
+      <label for="login">Логин администрации</label>
+      <input name="login" id="login" placeholder="Логин" required>
+
+      <label for="password">Пароль администрации</label>
+      <input type="password" name="password" id="password" placeholder="Пароль" required>
+
+      <button type="submit">Зарегистрировать</button>
+    </form>
+  </div>
+
+  <!-- Правая часть: Таблица со списком школ -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Login</th>
+          <th>Num</th>
+          <th>Sity</th>
+          <th>Index</th>
+          <th>Password</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in database_data %}
+        <tr>
+          <td>{{row[0]}}</td>
+          <td>{{row[1]}}</td>
+          <td>{{row[2]}}</td>
+          <td>{{row[3]}}</td>
+          <td>{{row[4]}}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</body>
+</html>
+
